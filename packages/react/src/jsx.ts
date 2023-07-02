@@ -1,9 +1,14 @@
 // React Element
 
 import { REACT_ELEMENT_TYPE } from 'shared/ReactSymbols';
-import { ElementType, Key, Props, Ref, Type } from 'shared/ReactTypes';
+import { ReactElementType, Key, Props, Ref, Type } from 'shared/ReactTypes';
 
-const ReactElement = function (type: Type, key: Key, ref: Ref, props: Props) {
+const ReactElement = function (
+	type: Type,
+	key: Key,
+	ref: Ref,
+	props: Props
+): ReactElementType {
 	const element = {
 		$$typeof: REACT_ELEMENT_TYPE,
 		type,
@@ -16,7 +21,7 @@ const ReactElement = function (type: Type, key: Key, ref: Ref, props: Props) {
 };
 
 export const jsx = function (
-	type: ElementType,
+	type: ReactElementType,
 	config: any,
 	...maybeChildren: any
 ) {
