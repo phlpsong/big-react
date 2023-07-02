@@ -1,7 +1,14 @@
-// React Element
-
 import { REACT_ELEMENT_TYPE } from 'shared/ReactSymbols';
-import { ReactElementType, Key, Props, Ref, Type } from 'shared/ReactTypes';
+import {
+	Type,
+	Key,
+	Ref,
+	Props,
+	ReactElementType,
+	ElementType
+} from 'shared/ReactTypes';
+
+// ReactElement
 
 const ReactElement = function (
 	type: Type,
@@ -20,11 +27,7 @@ const ReactElement = function (
 	return element;
 };
 
-export const jsx = function (
-	type: ReactElementType,
-	config: any,
-	...maybeChildren: any
-) {
+export const jsx = (type: ElementType, config: any, ...maybeChildren: any) => {
 	let key: Key = null;
 	const props: Props = {};
 	let ref: Ref = null;
@@ -41,6 +44,7 @@ export const jsx = function (
 			if (val !== undefined) {
 				ref = val;
 			}
+			continue;
 		}
 		if ({}.hasOwnProperty.call(config, prop)) {
 			props[prop] = val;
@@ -48,12 +52,37 @@ export const jsx = function (
 	}
 	const maybeChildrenLength = maybeChildren.length;
 	if (maybeChildrenLength) {
-		// [child, child, child]
-		props.children = maybeChildren[0];
-	} else {
-		props.children = maybeChildren;
+		if (maybeChildrenLength === 1) {
+			props.children = maybeChildren[0];
+		} else {
+			props.children = maybeChildren;
+		}
 	}
 	return ReactElement(type, key, ref, props);
 };
 
-export const jsxDev = jsx;
+export const jsxDEV = (type: ElementType, config: any) => {
+	let key: Key = null;
+	const props: Props = {};
+	let ref: Ref = null;
+
+	for (const prop in config) {
+		const val = config[prop];
+		if (prop === 'key') {
+			if (val !== undefined) {
+				key = '' + val;
+			}
+			continue;
+		}
+		if (prop === 'ref') {
+			if (val !== undefined) {
+				ref = val;
+			}
+			continue;
+		}
+		if ({}.hasOwnProperty.call(config, prop)) {
+			props[prop] = val;
+		}
+	}
+	return ReactElement(type, key, ref, props);
+};
