@@ -73,7 +73,7 @@ export const jsxDEV = (type: ElementType, config: any) => {
 				key = '' + val;
 			}
 			continue;
-		} 
+		}
 		if (prop === 'ref') {
 			if (val !== undefined) {
 				ref = val;
