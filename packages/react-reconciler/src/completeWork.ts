@@ -1,4 +1,8 @@
-import { appendInitialChild, createInstance } from 'hostConfig';
+import {
+	appendInitialChild,
+	createInstance,
+	createTextInstance
+} from 'hostConfig';
 import { FiberNode } from './fiber';
 import { HostComponent, HostRoot, HostText } from './workTags';
 import { NoFlags } from './fiberFlags';
@@ -77,4 +81,5 @@ function bubbleProperties(wip: FiberNode) {
 		child.return = wip;
 		child = child.sibling;
 	}
+	wip.subtreeFlags |= subtreeFlags;
 }
