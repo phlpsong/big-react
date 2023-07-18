@@ -1,4 +1,4 @@
-import { Container, appendChildToContainer } from 'hostConfig';
+import { appendChildToContainer, Container } from 'hostConfig';
 import { FiberNode, FiberRootNode } from './fiber';
 import { MutationMask, NoFlags, Placement } from './fiberFlags';
 import { HostComponent, HostRoot, HostText } from './workTags';
@@ -9,16 +9,17 @@ export const commitMutationEffects = (finishedWork: FiberNode) => {
 	nextEffect = finishedWork;
 
 	while (nextEffect !== null) {
+		// 向下遍历
 		const child: FiberNode | null = nextEffect.child;
+
 		if ((nextEffect.subtreeFlags & MutationMask) !== NoFlags && child !== null) {
-			// subtree 中含有需要更新的节点，继续往下遍历
 			nextEffect = child;
 		} else {
-			// subtree 不含需要更新节点 可能是flags含有 Mutation Flag
 			// 向上遍历 DFS
 			up: while (nextEffect !== null) {
-				commitMutationEffectOnFiber(nextEffect);
+				commitMutaitonEffectsOnFiber(nextEffect);
 				const sibling: FiberNode | null = nextEffect.sibling;
+
 				if (sibling !== null) {
 					nextEffect = sibling;
 					break up;
@@ -29,8 +30,9 @@ export const commitMutationEffects = (finishedWork: FiberNode) => {
 	}
 };
 
-const commitMutationEffectOnFiber = (finishedWork: FiberNode) => {
+const commitMutaitonEffectsOnFiber = (finishedWork: FiberNode) => {
 	const flags = finishedWork.flags;
+
 	if ((flags & Placement) !== NoFlags) {
 		commitPlacement(finishedWork);
 		finishedWork.flags &= ~Placement;
@@ -40,13 +42,12 @@ const commitMutationEffectOnFiber = (finishedWork: FiberNode) => {
 };
 
 const commitPlacement = (finishedWork: FiberNode) => {
-	// parent DOM
 	if (__DEV__) {
 		console.warn('执行Placement操作', finishedWork);
 	}
 	// parent DOM
 	const hostParent = getHostParent(finishedWork);
-	// finishedWork ~~ DOM
+	// finishedWork ~~ DOM append parent DOM
 	if (hostParent !== null) {
 		appendPlacementNodeIntoContainer(finishedWork, hostParent);
 	}
@@ -73,14 +74,16 @@ function getHostParent(fiber: FiberNode): Container | null {
 }
 
 function appendPlacementNodeIntoContainer(finishedWork: FiberNode, hostParent: Container) {
+	// fiber host
 	if (finishedWork.tag === HostComponent || finishedWork.tag === HostText) {
-		appendChildToContainer(finishedWork.stateNode, hostParent);
+		appendChildToContainer(hostParent, finishedWork.stateNode);
 		return;
 	}
 	const child = finishedWork.child;
 	if (child !== null) {
 		appendPlacementNodeIntoContainer(child, hostParent);
 		let sibling = child.sibling;
+
 		while (sibling !== null) {
 			appendPlacementNodeIntoContainer(sibling, hostParent);
 			sibling = sibling.sibling;
