@@ -8,7 +8,10 @@ export const createInstance = (type: string): Instance => {
 	return element;
 };
 
-export const appendInitialChild = (parent: Instance | Container, child: Instance) => {
+export const appendInitialChild = (
+	parent: Instance | Container,
+	child: Instance
+) => {
 	parent.appendChild(child);
 };
 

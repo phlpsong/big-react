@@ -67,7 +67,8 @@ function commitRoot(root: FiberRootNode) {
 
 	// 判断是否存在3个子阶段需要执行的操作
 	// root.flags root.subtreeFlags
-	const subtreeHasEffect = (finishedWork.subtreeFlags & MutationMask) !== NoFlags;
+	const subtreeHasEffect =
+		(finishedWork.subtreeFlags & MutationMask) !== NoFlags;
 	const rootHasEffect = (finishedWork.flags & MutationMask) !== NoFlags;
 
 	if (subtreeHasEffect || rootHasEffect) {

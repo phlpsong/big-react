@@ -24,7 +24,10 @@ export const createUpdateQueue = <State>() => {
 	} as UpdateQueue<State>;
 };
 
-export const enqueueUpdate = <State>(updateQueue: UpdateQueue<State>, update: Update<State>) => {
+export const enqueueUpdate = <State>(
+	updateQueue: UpdateQueue<State>,
+	update: Update<State>
+) => {
 	updateQueue.shared.pending = update;
 };
 

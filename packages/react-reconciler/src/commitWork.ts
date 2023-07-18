@@ -12,7 +12,10 @@ export const commitMutationEffects = (finishedWork: FiberNode) => {
 		// 向下遍历
 		const child: FiberNode | null = nextEffect.child;
 
-		if ((nextEffect.subtreeFlags & MutationMask) !== NoFlags && child !== null) {
+		if (
+			(nextEffect.subtreeFlags & MutationMask) !== NoFlags &&
+			child !== null
+		) {
 			nextEffect = child;
 		} else {
 			// 向上遍历 DFS
@@ -73,7 +76,10 @@ function getHostParent(fiber: FiberNode): Container | null {
 	return null;
 }
 
-function appendPlacementNodeIntoContainer(finishedWork: FiberNode, hostParent: Container) {
+function appendPlacementNodeIntoContainer(
+	finishedWork: FiberNode,
+	hostParent: Container
+) {
 	// fiber host
 	if (finishedWork.tag === HostComponent || finishedWork.tag === HostText) {
 		appendChildToContainer(hostParent, finishedWork.stateNode);

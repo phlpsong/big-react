@@ -1,4 +1,9 @@
-import { appendInitialChild, Container, createInstance, createTextInstance } from 'hostConfig';
+import {
+	appendInitialChild,
+	Container,
+	createInstance,
+	createTextInstance
+} from 'hostConfig';
 import { FiberNode } from './fiber';
 import { NoFlags } from './fiberFlags';
 import { HostRoot, HostText, HostComponent } from './workTags';

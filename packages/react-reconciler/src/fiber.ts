@@ -65,7 +65,10 @@ export class FiberRootNode {
 	}
 }
 
-export const createWorkInProgress = (current: FiberNode, pendingProps: Props): FiberNode => {
+export const createWorkInProgress = (
+	current: FiberNode,
+	pendingProps: Props
+): FiberNode => {
 	let wip = current.alternate;
 
 	if (wip === null) {
