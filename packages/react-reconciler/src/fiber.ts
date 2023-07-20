@@ -8,7 +8,7 @@ export class FiberNode {
 	tag: WorkTag;
 	pendingProps: Props;
 	key: Key;
-	stateNode: any;
+	stateNode: any; // stateNode 保存离屏DOM
 	ref: Ref;
 
 	return: FiberNode | null;

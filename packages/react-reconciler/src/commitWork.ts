@@ -9,7 +9,7 @@ export const commitMutationEffects = (finishedWork: FiberNode) => {
 	nextEffect = finishedWork;
 
 	while (nextEffect !== null) {
-		// 向下遍历
+		// 向下遍历 查找最后含flag的node
 		const child: FiberNode | null = nextEffect.child;
 
 		if (
