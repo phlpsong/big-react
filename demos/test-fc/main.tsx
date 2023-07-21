@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import ReactDOM from 'react-dom/client';
 
 function App() {
+	const [num, dispatch] = useState(100);
 	return (
 		<div>
-			<span>big-react</span>
+			<span>{num}</span>
 		</div>
 	);
 }
