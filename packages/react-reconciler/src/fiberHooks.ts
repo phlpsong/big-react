@@ -2,12 +2,13 @@ import { Dispatch, Dispatcher } from 'react/src/currentDispatcher';
 import { FiberNode } from './fiber';
 import internals from 'shared/internals';
 import {
-	UpdateQueue,
 	createUpdate,
 	createUpdateQueue,
-	enqueueUpdate
+	enqueueUpdate,
+	UpdateQueue
 } from './updateQueue';
 import { scheduleUpdateOnFiber } from './workLoop';
+import { Action } from 'shared/ReactTypes';
 
 let currentlyRenderingFiber: FiberNode | null = null;
 let workInProgressHook: Hook | null = null;
@@ -68,7 +69,7 @@ function mountState<State>(
 	return [memoizedState, dispatch];
 }
 
-function dispatchState(
+function dispatchState<State>(
 	fiber: FiberNode,
 	updateQueue: UpdateQueue<State>,
 	action: Action<State>
