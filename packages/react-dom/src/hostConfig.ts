@@ -28,7 +28,7 @@ export const appendChildToContainer = appendInitialChild;
 export function commitUpdate(fiber: FiberNode) {
 	switch (fiber.tag) {
 		case HostText:
-			const text = fiber.memoizedProps.children;
+			const text = fiber.memoizedProps.content;
 			commitTextUpdate(fiber.stateNode, text);
 			break;
 		default:
