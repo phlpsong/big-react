@@ -26,12 +26,12 @@ function ChildReconciler(shouldTrackEffects: boolean) {
 
 	function deleteRemainingChildren(
 		returnFiber: FiberNode,
-		currentFirstFiber: FiberNode | null
+		currentFirstChild: FiberNode | null
 	) {
 		if (!shouldTrackEffects) {
 			return;
 		}
-		let childToDelete = currentFirstFiber;
+		let childToDelete = currentFirstChild;
 		while (childToDelete !== null) {
 			deleteChild(returnFiber, childToDelete);
 			childToDelete = childToDelete.sibling;
@@ -107,7 +107,7 @@ function ChildReconciler(shouldTrackEffects: boolean) {
 		return fiber;
 	}
 
-	function reconcilerChildrenArray(
+	function reconcileChildrenArray(
 		returnFiber: FiberNode,
 		currentFirstChild: FiberNode | null,
 		newChild: any[]
@@ -123,7 +123,7 @@ function ChildReconciler(shouldTrackEffects: boolean) {
 		let current = currentFirstChild;
 		while (current !== null) {
 			const keyToUse = current.key !== null ? current.key : current.index;
-			existingChildren(keyToUse, current);
+			existingChildren.set(keyToUse, current);
 			current = current.sibling;
 		}
 
@@ -230,7 +230,7 @@ function ChildReconciler(shouldTrackEffects: boolean) {
 					break;
 			}
 			if (Array.isArray(newChild)) {
-				return reconcilerChildrenArray(returnFiber, currentFiber, newChild);
+				return reconcileChildrenArray(returnFiber, currentFiber, newChild);
 			}
 		}
 		// TODO 多节点的情况
