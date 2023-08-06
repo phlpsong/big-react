@@ -1,4 +1,4 @@
-let syncQueue: ((...args: any) => void)[] | nulll = null;
+let syncQueue: ((...args: any) => void)[] | null = null;
 let isFlushingSyncQueue = false;
 
 export function scheduleSyncCallback(callback: (...args: any) => void) {

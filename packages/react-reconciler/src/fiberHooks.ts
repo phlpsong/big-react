@@ -48,6 +48,8 @@ export function renderWithHooks(wip: FiberNode, lane: Lane) {
 	currentlyRenderingFiber = wip;
 	// 重置 hooks 链表
 	wip.memoizedState = null;
+	// 重置 effects 链表
+	wip.updateQueue = null;
 	renderLane = lane;
 
 	const current = wip.alternate;
@@ -81,7 +83,7 @@ const HooksDispatcherOnUpdate: Dispatcher = {
 	useEffect: updateEffect
 };
 
-function mountEffect(create: EffectCallback | void, deps: EffectDeps) {
+function mountEffect(create: EffectCallback | void, deps: EffectDeps | void) {
 	const hook = mountWorkInProgressHook();
 	const nextDeps = deps === undefined ? null : deps;
 	(currentlyRenderingFiber as FiberNode).flags |= PassiveEffect;
@@ -92,6 +94,45 @@ function mountEffect(create: EffectCallback | void, deps: EffectDeps) {
 		undefined,
 		nextDeps
 	);
+}
+
+function updateEffect(create: EffectCallback | void, deps: EffectDeps | void) {
+	const hook = updateWorkInProgressHook();
+	const nextDeps = deps === undefined ? null : deps;
+	let destrory: EffectCallback | void;
+	if (currentHook !== null) {
+		const prevEffect = currentHook.memoizedState as Effect;
+		destrory = prevEffect.destrory;
+		// 浅比较依赖
+		if (nextDeps !== null) {
+			const prevDeps = prevEffect.deps;
+			if (areHookInputEqual(nextDeps, prevDeps)) {
+				hook.memoizedState = pushEffect(Passive, create, destrory, nextDeps);
+				return;
+			}
+		}
+		// 浅比较 不相等
+		(currentlyRenderingFiber as FiberNode).flags |= PassiveEffect;
+		hook.memoizedState = pushEffect(
+			Passive | HookHasEffect,
+			create,
+			destrory,
+			nextDeps
+		);
+	}
+}
+
+function areHookInputEqual(nextDeps: EffectDeps, prevDeps: EffectDeps) {
+	if (prevDeps === null || nextDeps === null) {
+		return false;
+	}
+	for (let i = 0; i < prevDeps.length && i < nextDeps.length; i++) {
+		if (Object.is(prevDeps[i], nextDeps[i])) {
+			continue;
+		}
+		return false;
+	}
+	return true;
 }
 
 function pushEffect(
@@ -131,7 +172,7 @@ function pushEffect(
 }
 
 function createFCUpdateQueue<State>() {
-	const updateQueue = createUpdateQueue<State>() as FCUpdate<State>;
+	const updateQueue = createUpdateQueue<State>() as FCUpdateQueue<State>;
 	updateQueue.lastEffect = null;
 	return updateQueue;
 }

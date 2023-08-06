@@ -181,6 +181,7 @@ function flushPassiveEffects(pendingPassiveEffects: PendingPassiveEffects) {
 		commitHookEffectListCreate(Passive | HookHasEffect, effect);
 	});
 	pendingPassiveEffects.update = [];
+	flushSyncCallbacks();
 }
 
 function workLoop() {
