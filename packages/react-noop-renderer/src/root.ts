@@ -1,21 +1,21 @@
-// ReactDOM.createRoot(root).render(<App/>)
-
+import { Instance } from './hostConfig';
 import {
 	createContainer,
 	updateContainer
 } from 'react-reconciler/src/fiberReconciler';
+import { REACT_ELEMENT_TYPE, REACT_FRAGMENT_TYPE } from 'shared/ReactSymbols';
 import { ReactElementType } from 'shared/ReactTypes';
 import { Container } from './hostConfig';
-import { Instance } from './hostConfig';
-import { REACT_ELEMENT_TYPE, REACT_FRAGMENT_TYPE } from 'shared/ReactSymbols';
+import * as Scheduler from 'scheduler';
 
 let idCounter = 0;
 
 export function createRoot() {
-	const contaner: Container = {
+	const container: Container = {
 		rootID: idCounter++,
 		children: []
 	};
+
 	// @ts-ignore
 	const root = createContainer(container);
 
@@ -34,7 +34,7 @@ export function createRoot() {
 				type: REACT_FRAGMENT_TYPE,
 				key: null,
 				ref: null,
-				props: {},
+				props: { children },
 				__mark: 'KaSong'
 			};
 		}
@@ -45,14 +45,16 @@ export function createRoot() {
 		if (typeof child === 'string' || typeof child === 'number') {
 			return child;
 		}
+
 		if (Array.isArray(child)) {
 			if (child.length === 0) {
-				return 0;
+				return null;
 			}
 			if (child.length === 1) {
 				return childToJSX(child[0]);
 			}
 			const children = child.map(childToJSX);
+
 			if (
 				children.every(
 					(child) => typeof child === 'string' || typeof child === 'number'
@@ -60,7 +62,7 @@ export function createRoot() {
 			) {
 				return children.join('');
 			}
-
+			// [TextInstance, TextInstance, Instance]
 			return children;
 		}
 
@@ -69,9 +71,11 @@ export function createRoot() {
 			const instance: Instance = child;
 			const children = childToJSX(instance.children);
 			const props = instance.props;
+
 			if (children !== null) {
 				props.children = children;
 			}
+
 			return {
 				$$typeof: REACT_ELEMENT_TYPE,
 				type: instance.type,
@@ -81,19 +85,21 @@ export function createRoot() {
 				__mark: 'KaSong'
 			};
 		}
+
 		// TextInstance
 		return child.text;
 	}
 
 	return {
+		_Scheduler: Scheduler,
 		render(element: ReactElementType) {
 			return updateContainer(element, root);
 		},
 		getChildren() {
-			return getChildren(contaner);
+			return getChildren(container);
 		},
 		getChildrenAsJSX() {
-			return getChildrenAsJSX(contaner);
+			return getChildrenAsJSX(container);
 		}
 	};
 }

@@ -5,9 +5,9 @@ import alias from '@rollup/plugin-alias';
 const { name, module, peerDependencies } = getPackageJSON(
 	'react-noop-renderer'
 );
-// react-noop-renderer 包的路径
+// react-dom包的路径
 const pkgPath = resolvePkgPath(name);
-// react-noop-renderer 产物路径
+// react-dom产物路径
 const pkgDistPath = resolvePkgPath(name, true);
 
 export default [

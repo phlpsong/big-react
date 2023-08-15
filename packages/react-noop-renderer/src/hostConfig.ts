@@ -21,6 +21,7 @@ export interface TextInstance {
 }
 
 let instanceCounter = 0;
+
 // export const createInstance = (type: string, props: any): Instance => {
 export const createInstance = (type: string, props: Props): Instance => {
 	const instance = {
@@ -40,6 +41,7 @@ export const appendInitialChild = (
 	// id
 	const prevParentID = child.parent;
 	const parentID = 'rootID' in parent ? parent.rootID : parent.id;
+
 	if (prevParentID !== -1 && prevParentID !== parentID) {
 		throw new Error('不能重复挂载child');
 	}
@@ -59,6 +61,7 @@ export const createTextInstance = (content: string) => {
 export const appendChildToContainer = (parent: Container, child: Instance) => {
 	// id
 	const prevParentID = child.parent;
+
 	if (prevParentID !== -1 && prevParentID !== parent.rootID) {
 		throw new Error('不能重复挂载child');
 	}
@@ -69,9 +72,8 @@ export const appendChildToContainer = (parent: Container, child: Instance) => {
 export function commitUpdate(fiber: FiberNode) {
 	switch (fiber.tag) {
 		case HostText:
-			const text = fiber.memoizedProps.content;
-			commitTextUpdate(fiber.stateNode, text);
-			break;
+			const text = fiber.memoizedProps?.content;
+			return commitTextUpdate(fiber.stateNode, text);
 		default:
 			if (__DEV__) {
 				console.warn('未实现的Update类型', fiber);
@@ -89,6 +91,7 @@ export function removeChild(
 	container: Container
 ) {
 	const index = container.children.indexOf(child);
+
 	if (index === -1) {
 		throw new Error('child不存在');
 	}
@@ -105,9 +108,10 @@ export function insertChildToContainer(
 		throw new Error('before不存在');
 	}
 	const index = container.children.indexOf(child);
-	if (index === -1) {
-		container.children.splice(beforeIndex, 0, child);
+	if (index !== -1) {
+		container.children.splice(index, 1);
 	}
+	container.children.splice(beforeIndex, 0, child);
 }
 
 export const scheduleMicroTask =
