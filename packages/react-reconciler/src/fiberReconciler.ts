@@ -10,7 +10,10 @@ import {
 import { ReactElementType } from 'shared/ReactTypes';
 import { scheduleUpdateOnFiber } from './workLoop';
 import { requestUpdateLane } from './fiberLanes';
-import { unstable_runWithPriority, unstable_ImmediatePriority } from 'scheduler';
+import {
+	unstable_runWithPriority,
+	unstable_ImmediatePriority
+} from 'scheduler';
 
 export function createContainer(container: Container) {
 	const hostRootFiber = new FiberNode(HostRoot, {}, null);
