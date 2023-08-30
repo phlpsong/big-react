@@ -64,13 +64,13 @@ const commitMutaitonEffectsOnFiber = (
 	finishedWork: FiberNode,
 	root: FiberRootNode
 ) => {
-	const flags = finishedWork.flags;
+	const { flags, tag } = finishedWork;
 
 	if ((flags & Placement) !== NoFlags) {
 		commitPlacement(finishedWork);
 		finishedWork.flags &= ~Placement;
 	}
-	if ((flags & Update) !== NoFlags) {
+	if ((flags & Update) !== NoFlags && tag === HostComponent) {
 		commitUpdate(finishedWork);
 		finishedWork.flags &= ~Update;
 	}
@@ -85,20 +85,30 @@ const commitMutaitonEffectsOnFiber = (
 	}
 	// flags Update
 	// flags ChildDeletion
-	if ((flags & PassiveEffect) !== NoFlags) {
-		commitPassiveEffect(finishedWork, root, 'update');
-		finishedWork.flags &= ~PassiveEffect;
+	if ((flags & Ref) !== NoFlags && tag === HostComponent) {
+		safelyDetachRef(finishedWork);
 	}
 };
+
+function safelyDetachRef(current: FiberNode) {
+	const ref = current.ref;
+	if (ref !== null) {
+		if (typeof ref === 'function') {
+			ref(null);
+		} else {
+			ref.current = null;
+		}
+	}
+}
 
 const commitLayoutEffectsOnFiber = (
 	finishedWork: FiberNode,
 	root: FiberRootNode
 ) => {
-	const flags = finishedWork.flags;
+	const { flags, tag } = finishedWork;
 
-	if ((flags & Ref) !== NoFlags) {
-		commitPlacement(finishedWork);
+	if ((flags & Ref) !== NoFlags && tag === HostComponent) {
+		safelyAttachRef(finishedWork);
 		finishedWork.flags &= ~Ref;
 	}
 };
@@ -114,6 +124,18 @@ export const commitLayoutEffects = commitEffects(
 	LayoutMask,
 	commitMutaitonEffectsOnFiber
 );
+
+function safelyAttachRef(fiber: FiberNode) {
+	const ref = fiber.ref;
+	if (ref !== null) {
+		const instance = fiber.stateNode;
+		if (typeof ref === 'function') {
+			ref(instance);
+		} else {
+			ref.current = instance;
+		}
+	}
+}
 
 function commitPassiveEffect(
 	fiber: FiberNode,
@@ -207,6 +229,7 @@ function commitDeletion(childToDelete: FiberNode, root: FiberRootNode) {
 			case HostComponent:
 				recordHostChildrenToDelete(rootChildrenToDelete, unmountFiber);
 				// TODO 解绑ref
+				safelyDetachRef(unmountFiber);
 				return;
 			case HostText:
 				recordHostChildrenToDelete(rootChildrenToDelete, unmountFiber);
