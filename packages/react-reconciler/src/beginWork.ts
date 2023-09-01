@@ -8,7 +8,8 @@ import {
 	HostComponent,
 	HostRoot,
 	HostText,
-	Fragment
+	Fragment,
+	ContextProvider
 } from './workTags';
 import { mountChildFibers, reconcileChildFibers } from './childFibers';
 import { renderWithHooks } from './fiberHooks';
@@ -28,6 +29,8 @@ export const beginWork = (wip: FiberNode, renderLane: Lane) => {
 			return updateFunctionComponent(wip, renderLane);
 		case Fragment:
 			return updateFragment(wip);
+		case ContextProvider:
+			return updateContextProvider(wip);
 		default:
 			if (__DEV__) {
 				console.warn('beginWork not implement wip tag');
@@ -93,3 +96,13 @@ function markRef(current: FiberNode | null, workInProgress: FiberNode) {
 		workInProgress.flags |= Ref;
 	}
 }
+
+function updateContextProvider(wip: FiberNode) {
+	const providerType = wip.type;
+	const context = providerType._context;
+	const newProps = wip.pendingProps;
+	// TODO 
+	const nextChildren = wip.pendingProps;
+	reconcileChildren(wip, nextChildren);
+	return wip.child;
+};
