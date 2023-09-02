@@ -15,6 +15,7 @@ import { mountChildFibers, reconcileChildFibers } from './childFibers';
 import { renderWithHooks } from './fiberHooks';
 import { Lane } from './fiberLanes';
 import { Ref } from './fiberFlags';
+import { pushProvider } from './fiberContext';
 
 export const beginWork = (wip: FiberNode, renderLane: Lane) => {
 	// 比较 返回 子fiberNode
@@ -101,7 +102,9 @@ function updateContextProvider(wip: FiberNode) {
 	const providerType = wip.type;
 	const context = providerType._context;
 	const newProps = wip.pendingProps;
-	// TODO 
+
+	pushProvider(context, newProps.value);
+
 	const nextChildren = wip.pendingProps;
 	reconcileChildren(wip, nextChildren);
 	return wip.child;
