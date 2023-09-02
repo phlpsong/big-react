@@ -1,6 +1,6 @@
 import { Dispatch } from 'react/src/currentDispatcher';
 import { Action } from 'shared/ReactTypes';
-import { Lane, NoLane, isSubsetOfLanes } from './fiberLanes';
+import { isSubsetOfLanes, Lane, NoLane } from './fiberLanes';
 
 export interface Update<State> {
 	action: Action<State>;
@@ -21,7 +21,7 @@ export const createUpdate = <State>(
 ): Update<State> => {
 	return {
 		action,
-		lane: lane,
+		lane,
 		next: null
 	};
 };
@@ -41,8 +41,11 @@ export const enqueueUpdate = <State>(
 ) => {
 	const pending = updateQueue.shared.pending;
 	if (pending === null) {
+		// pending = a -> a
 		update.next = update;
 	} else {
+		// pending = b -> a -> b
+		// pending = c -> a -> b -> c
 		update.next = pending.next;
 		pending.next = update;
 	}
@@ -65,6 +68,7 @@ export const processUpdateQueue = <State>(
 	};
 
 	if (pendingUpdate !== null) {
+		// 第一个update
 		const first = pendingUpdate.next;
 		let pending = pendingUpdate.next as Update<any>;
 
@@ -98,7 +102,7 @@ export const processUpdateQueue = <State>(
 					newBaseQueueLast = clone;
 				}
 
-				const action = pendingUpdate.action;
+				const action = pending.action;
 				if (action instanceof Function) {
 					// baseState 1 update (x) => 4x -> memoizedState 4
 					newState = action(baseState);
@@ -107,8 +111,9 @@ export const processUpdateQueue = <State>(
 					newState = action;
 				}
 			}
-			pending = pending?.next as Update<any>;
+			pending = pending.next as Update<any>;
 		} while (pending !== first);
+
 		if (newBaseQueueLast === null) {
 			// 本次计算没有update被跳过
 			newBaseState = newState;

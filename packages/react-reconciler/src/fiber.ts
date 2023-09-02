@@ -18,7 +18,7 @@ export class FiberNode {
 	tag: WorkTag;
 	pendingProps: Props;
 	key: Key;
-	stateNode: any; // stateNode 保存离屏DOM
+	stateNode: any;
 	ref: Ref;
 
 	return: FiberNode | null;
@@ -77,8 +77,10 @@ export class FiberRootNode {
 	pendingLanes: Lanes;
 	finishedLane: Lane;
 	pendingPassiveEffects: PendingPassiveEffects;
+
 	callbackNode: CallbackNode | null;
 	callbackPriority: Lane;
+
 	constructor(container: Container, hostRootFiber: FiberNode) {
 		this.container = container;
 		this.current = hostRootFiber;
@@ -89,6 +91,7 @@ export class FiberRootNode {
 
 		this.callbackNode = null;
 		this.callbackPriority = NoLane;
+
 		this.pendingPassiveEffects = {
 			unmount: [],
 			update: []

@@ -8,8 +8,9 @@ export type WorkTag =
 
 export const FunctionComponent = 0;
 export const HostRoot = 3;
-// <div>
+
 export const HostComponent = 5;
+// <div>123</div>
 export const HostText = 6;
 export const Fragment = 7;
 export const ContextProvider = 8;

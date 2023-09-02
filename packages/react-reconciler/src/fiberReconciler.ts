@@ -1,19 +1,19 @@
 import { Container } from 'hostConfig';
-import { FiberNode, FiberRootNode } from './fiber';
-import { HostRoot } from './workTags';
 import {
-	UpdateQueue,
-	createUpdate,
-	createUpdateQueue,
-	enqueueUpdate
-} from './updateQueue';
+	unstable_ImmediatePriority,
+	unstable_runWithPriority
+} from 'scheduler';
 import { ReactElementType } from 'shared/ReactTypes';
-import { scheduleUpdateOnFiber } from './workLoop';
+import { FiberNode, FiberRootNode } from './fiber';
 import { requestUpdateLane } from './fiberLanes';
 import {
-	unstable_runWithPriority,
-	unstable_ImmediatePriority
-} from 'scheduler';
+	createUpdate,
+	createUpdateQueue,
+	enqueueUpdate,
+	UpdateQueue
+} from './updateQueue';
+import { scheduleUpdateOnFiber } from './workLoop';
+import { HostRoot } from './workTags';
 
 export function createContainer(container: Container) {
 	const hostRootFiber = new FiberNode(HostRoot, {}, null);

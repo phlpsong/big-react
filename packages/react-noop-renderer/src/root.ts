@@ -1,3 +1,5 @@
+// ReactDOM.createRoot(root).render(<App/>)
+
 import { Instance } from './hostConfig';
 import {
 	createContainer,

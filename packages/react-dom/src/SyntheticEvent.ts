@@ -1,11 +1,11 @@
 import { Container } from 'hostConfig';
-import { Props } from 'shared/ReactTypes';
 import {
 	unstable_ImmediatePriority,
-	unstable_UserBlockingPriority,
 	unstable_NormalPriority,
-	unstable_runWithPriority
+	unstable_runWithPriority,
+	unstable_UserBlockingPriority
 } from 'scheduler';
+import { Props } from 'shared/ReactTypes';
 
 export const elementPropsKey = '__props';
 const validEventTypeList = ['click'];
@@ -25,6 +25,7 @@ export interface DOMElement extends Element {
 	[elementPropsKey]: Props;
 }
 
+// dom[xxx] = reactElemnt props
 export function updateFiberProps(node: DOMElement, props: Props) {
 	node[elementPropsKey] = props;
 }
@@ -46,6 +47,7 @@ function createSyntheticEvent(e: Event) {
 	const syntheticEvent = e as SyntheticEvent;
 	syntheticEvent.__stopPropagation = false;
 	const originStopPropagation = e.stopPropagation;
+
 	syntheticEvent.stopPropagation = () => {
 		syntheticEvent.__stopPropagation = true;
 		if (originStopPropagation) {
@@ -57,10 +59,12 @@ function createSyntheticEvent(e: Event) {
 
 function dispatchEvent(container: Container, eventType: string, e: Event) {
 	const targetElement = e.target;
+
 	if (targetElement === null) {
 		console.warn('事件不存在target', e);
 		return;
 	}
+
 	// 1. 收集沿途的事件
 	const { bubble, capture } = collectPaths(
 		targetElement as DOMElement,
@@ -69,8 +73,10 @@ function dispatchEvent(container: Container, eventType: string, e: Event) {
 	);
 	// 2. 构造合成事件
 	const se = createSyntheticEvent(e);
-	// 3. 遍历capture
+
+	// 3. 遍历captue
 	triggerEventFlow(capture, se);
+
 	if (!se.__stopPropagation) {
 		// 4. 遍历bubble
 		triggerEventFlow(bubble, se);
@@ -80,9 +86,10 @@ function dispatchEvent(container: Container, eventType: string, e: Event) {
 function triggerEventFlow(paths: EventCallback[], se: SyntheticEvent) {
 	for (let i = 0; i < paths.length; i++) {
 		const callback = paths[i];
-		unstable_runWithPriority(eventTypeToSchedulerPriority(se.type), () => {
+		unstable_runWithPriority(eventTypeToSchdulerPriority(se.type), () => {
 			callback.call(null, se);
 		});
+
 		if (se.__stopPropagation) {
 			break;
 		}
@@ -106,6 +113,7 @@ function collectPaths(
 		capture: [],
 		bubble: []
 	};
+
 	while (targetElement && targetElement !== container) {
 		// 收集
 		const elementProps = targetElement[elementPropsKey];
@@ -117,6 +125,7 @@ function collectPaths(
 					const eventCallback = elementProps[callbackName];
 					if (eventCallback) {
 						if (i === 0) {
+							// capture
 							paths.capture.unshift(eventCallback);
 						} else {
 							paths.bubble.push(eventCallback);
@@ -130,7 +139,7 @@ function collectPaths(
 	return paths;
 }
 
-function eventTypeToSchedulerPriority(eventType: string) {
+function eventTypeToSchdulerPriority(eventType: string) {
 	switch (eventType) {
 		case 'click':
 		case 'keydown':

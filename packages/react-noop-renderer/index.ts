@@ -1,3 +1,3 @@
-import * as reactNoopRnderer from './src/root';
+import * as reactNoopRenderer from './src/root';
 
-export default reactNoopRnderer;
+export default reactNoopRenderer;

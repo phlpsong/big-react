@@ -4,7 +4,8 @@ let prevContextValue: any = null;
 const prevContextValueStack: any[] = [];
 
 export function pushProvider<T>(context: ReactContext<T>, newValue: T) {
-	prevContextValueStack.push(context);
+	prevContextValueStack.push(prevContextValue);
+
 	prevContextValue = context._currentValue;
 	context._currentValue = newValue;
 }

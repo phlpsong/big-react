@@ -1,7 +1,7 @@
 import { FiberNode } from 'react-reconciler/src/fiber';
 import { HostComponent, HostText } from 'react-reconciler/src/workTags';
-import { DOMElement, updateFiberProps } from './SyntheticEvent';
 import { Props } from 'shared/ReactTypes';
+import { updateFiberProps, DOMElement } from './SyntheticEvent';
 
 export type Container = Element;
 export type Instance = Element;
@@ -31,9 +31,8 @@ export const appendChildToContainer = appendInitialChild;
 export function commitUpdate(fiber: FiberNode) {
 	switch (fiber.tag) {
 		case HostText:
-			const text = fiber.memoizedProps.content;
-			commitTextUpdate(fiber.stateNode, text);
-			break;
+			const text = fiber.memoizedProps?.content;
+			return commitTextUpdate(fiber.stateNode, text);
 		case HostComponent:
 			return updateFiberProps(fiber.stateNode, fiber.memoizedProps);
 		default:
