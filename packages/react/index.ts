@@ -5,7 +5,10 @@ import {
 	createElement as createElementFn,
 	isValidElement as isValidElementFn
 } from './src/jsx';
-export { REACT_FRAGMENT_TYPE as Fragment } from 'shared/ReactSymbols';
+export {
+	REACT_FRAGMENT_TYPE as Fragment,
+	REACT_SUSPENSE_TYPE as Suspense
+} from 'shared/ReactSymbols';
 export { createContext } from './src/context';
 // React
 
