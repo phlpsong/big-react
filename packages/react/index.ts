@@ -5,6 +5,7 @@ import {
 	createElement as createElementFn,
 	isValidElement as isValidElementFn
 } from './src/jsx';
+import { Useable } from 'shared/ReactTypes';
 export {
 	REACT_FRAGMENT_TYPE as Fragment,
 	REACT_SUSPENSE_TYPE as Suspense
@@ -35,6 +36,11 @@ export const useRef: Dispatcher['useRef'] = (initialValue) => {
 export const useContext: Dispatcher['useContext'] = (context) => {
 	const dispatcher = resolveDispatcher() as Dispatcher;
 	return dispatcher.useContext(context);
+};
+
+export const use: Dispatcher['use'] = <T>(usable: Useable<T>) => {
+	const dispatcher = resolveDispatcher() as Dispatcher;
+	return dispatcher.use(usable);
 };
 
 // 内部数据共享层
