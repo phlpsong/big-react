@@ -30,10 +30,10 @@ export type ReactProviderType<T> = {
 
 export type Useable<T> = Thenable<T> | ReactContext<T>;
 
-export interface Wakeable<Result> {
+export interface Wakeable<Result = any> {
 	then(
-		onFulfilled: (value: T) => XPathResult,
-		onRejected: (error: Err) => Result
+		onFulfill: () => Result,
+		onReject: () => Result
 	): void | Wakeable<Result>;
 }
 
