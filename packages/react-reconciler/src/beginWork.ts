@@ -20,8 +20,15 @@ import {
 	OffscreenComponent,
 	SuspenseComponent
 } from './workTags';
-import { ChildDeletion, Placement, Ref } from './fiberFlags';
+import {
+	ChildDeletion,
+	DidCapture,
+	NoFlags,
+	Placement,
+	Ref
+} from './fiberFlags';
 import { pushProvider } from './fiberContext';
+import { pushSuspenseHandler } from './suspenseContext';
 
 // 递归中的递阶段
 export const beginWork = (wip: FiberNode, renderLane: Lane) => {
@@ -69,13 +76,16 @@ function updateSuspenseComponent(wip: FiberNode) {
 	const nextProps = wip.pendingProps;
 
 	let showFallback = false;
-	const didSuspend = true;
+	const didSuspend = (wip.flags & DidCapture) !== NoFlags;
 	if (didSuspend) {
 		showFallback = true;
+		wip.flags & ~DidCapture;
 	}
 
 	const nextPrimaryChildren = nextProps.children;
 	const nextFallbackChildren = nextProps.fallback;
+
+	pushSuspenseHandler(wip);
 
 	if (current === null) {
 		// mount

@@ -37,6 +37,7 @@ import { useEffect } from 'react';
 import { SuspenseException, getSuspenseThenable } from './thenable';
 import { resetHooksOnUnwind } from './fiberHooks';
 import { throwException } from './fiberThrow';
+import { unwindWork } from './fiberUnwindWork';
 
 let workInProgress: FiberNode | null = null;
 let wipRootRenderLane: Lane = NoLane;
@@ -255,6 +256,28 @@ function throwAndUnwindWorkLoop(
 	// 请求返回后重新触发更新
 	throwException(root, throwValue, lane);
 	// unwind
+	unwindUnitOfWork(unitOfWork);
+}
+
+function unwindUnitOfWork(unitOfWork: FiberNode) {
+	let incompleteWork: FiberNode | null = unitOfWork;
+
+	do {
+		const next = unwindWork(incompleteWork);
+		if (next !== null) {
+			workInProgress = next;
+			return;
+		}
+
+		const returnFiber = incompleteWork.return as FiberNode;
+		if (returnFiber !== null) {
+			returnFiber.deletions = null;
+		}
+		incompleteWork = returnFiber;
+	} while (incompleteWork !== null);
+
+	// 使用了 use，跑出了data，但是没有定义suspense
+	workInProgress = null;
 }
 
 function handleThrow(root: FiberRootNode, throwValue: any) {

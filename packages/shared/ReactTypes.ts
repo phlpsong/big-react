@@ -1,5 +1,3 @@
-import React from 'react';
-
 export type Type = any;
 export type Key = any;
 export type Ref = { current: any } | ((instance: any) => void);
@@ -28,7 +26,7 @@ export type ReactProviderType<T> = {
 	_context: ReactContext<T> | null;
 };
 
-export type Useable<T> = Thenable<T> | ReactContext<T>;
+export type Usable<T> = Thenable<T> | ReactContext<T>;
 
 export interface Wakeable<Result = any> {
 	then(
@@ -37,41 +35,37 @@ export interface Wakeable<Result = any> {
 	): void | Wakeable<Result>;
 }
 
-// untrack
-// pending
-// fulfill -> resolve
-// rejected -> reject
-export interface ThenableImpl<T, Result, Err> {
+interface ThenableImpl<T, Result, Err> {
 	then(
-		onFulfilled: (value: T) => Result,
-		onRejected: (error: Err) => Result
+		onFulfill: (value: T) => Result,
+		onReject: (error: Err) => Result
 	): void | Wakeable<Result>;
 }
 
-export interface UntrackThenable<T, Result, Err>
+interface UntrackedThenable<T, Result, Err>
 	extends ThenableImpl<T, Result, Err> {
 	status?: void;
 }
 
 export interface PendingThenable<T, Result, Err>
 	extends ThenableImpl<T, Result, Err> {
-	status?: 'pending';
+	status: 'pending';
 }
 
 export interface FulfilledThenable<T, Result, Err>
 	extends ThenableImpl<T, Result, Err> {
-	status?: 'fullfilled';
+	status: 'fulfilled';
 	value: T;
 }
 
 export interface RejectedThenable<T, Result, Err>
 	extends ThenableImpl<T, Result, Err> {
-	status?: 'rejected';
+	status: 'rejected';
 	reason: Err;
 }
 
 export type Thenable<T, Result = void, Err = any> =
-	| UntrackThenable<T, Result, Err>
+	| UntrackedThenable<T, Result, Err>
 	| PendingThenable<T, Result, Err>
 	| FulfilledThenable<T, Result, Err>
 	| RejectedThenable<T, Result, Err>;
