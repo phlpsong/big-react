@@ -5,12 +5,9 @@ import {
 	createElement as createElementFn,
 	isValidElement as isValidElementFn
 } from './src/jsx';
-import { Useable } from 'shared/ReactTypes';
-export {
-	REACT_FRAGMENT_TYPE as Fragment,
-	REACT_SUSPENSE_TYPE as Suspense
-} from 'shared/ReactSymbols';
+export { REACT_FRAGMENT_TYPE as Fragment } from 'shared/ReactSymbols';
 export { createContext } from './src/context';
+export { REACT_SUSPENSE_TYPE as Suspense } from 'shared/ReactSymbols';
 // React
 
 export const useState: Dispatcher['useState'] = (initialState) => {
@@ -38,7 +35,7 @@ export const useContext: Dispatcher['useContext'] = (context) => {
 	return dispatcher.useContext(context);
 };
 
-export const use: Dispatcher['use'] = <T>(usable: Useable<T>) => {
+export const use: Dispatcher['use'] = (usable) => {
 	const dispatcher = resolveDispatcher() as Dispatcher;
 	return dispatcher.use(usable);
 };

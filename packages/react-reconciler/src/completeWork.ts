@@ -5,7 +5,7 @@ import {
 	createTextInstance,
 	Instance
 } from 'hostConfig';
-import { FiberNode } from './fiber';
+import { FiberNode, OffscreenProps } from './fiber';
 import { NoFlags, Ref, Update, Visibility } from './fiberFlags';
 import {
 	HostRoot,
@@ -89,17 +89,20 @@ export const completeWork = (wip: FiberNode) => {
 			return null;
 		case SuspenseComponent:
 			popSuspenseHandler();
+
 			const offscreenFiber = wip.child as FiberNode;
 			const isHidden = offscreenFiber.pendingProps.mode === 'hidden';
 			const currentOffscreenFiber = offscreenFiber.alternate;
 			if (currentOffscreenFiber !== null) {
-				// update
 				const wasHidden = currentOffscreenFiber.pendingProps.mode === 'hidden';
+
 				if (isHidden !== wasHidden) {
+					// 可见性变化
 					offscreenFiber.flags |= Visibility;
 					bubbleProperties(offscreenFiber);
 				}
 			} else if (isHidden) {
+				// mount时hidden
 				offscreenFiber.flags |= Visibility;
 				bubbleProperties(offscreenFiber);
 			}

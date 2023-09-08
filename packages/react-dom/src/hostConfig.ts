@@ -79,10 +79,10 @@ export function unhideInstance(instance: Instance) {
 	style.display = '';
 }
 
-export function hideTextInstance(instance: TextInstance) {
-	instance.nodeValue = '';
+export function hideTextInstance(textInstance: TextInstance) {
+	textInstance.nodeValue = '';
 }
 
-export function unhideTextInstance(instance: TextInstance, text: string) {
-	instance.nodeValue = text;
+export function unhideTextInstance(textInstance: TextInstance, text: string) {
+	textInstance.nodeValue = text;
 }

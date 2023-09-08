@@ -1,9 +1,9 @@
 import { Wakeable } from 'shared/ReactTypes';
-import { FiberRootNode } from './fiber';
-import { Lane } from './fiberLanes';
+import { FiberNode, FiberRootNode } from './fiber';
+import { ShouldCapture } from './fiberFlags';
+import { Lane, Lanes, SyncLane, markRootPinged } from './fiberLanes';
 import { ensureRootIsScheduled, markRootUpdated } from './workLoop';
 import { getSuspenseHandler } from './suspenseContext';
-import { ShouldCapture } from './fiberFlags';
 
 function attachPingListener(
 	root: FiberRootNode,
@@ -29,12 +29,12 @@ function attachPingListener(
 		// 第一次进入
 		threadIDs.add(lane);
 
-		// eslint-disable-next-line no-inner-declarations
 		function ping() {
 			if (pingCache !== null) {
 				pingCache.delete(wakeable);
 			}
 			markRootUpdated(root, lane);
+			markRootPinged(root, lane);
 			ensureRootIsScheduled(root);
 		}
 		wakeable.then(ping, ping);

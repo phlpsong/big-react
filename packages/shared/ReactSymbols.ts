@@ -18,4 +18,4 @@ export const REACT_PROVIDER_TYPE = supportSymbol
 
 export const REACT_SUSPENSE_TYPE = supportSymbol
 	? Symbol.for('react.suspense')
-	: 0xeac3;
+	: 0xead1;

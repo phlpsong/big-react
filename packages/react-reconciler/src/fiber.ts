@@ -4,9 +4,9 @@ import {
 	Fragment,
 	FunctionComponent,
 	HostComponent,
-	OffscreenComponent,
+	WorkTag,
 	SuspenseComponent,
-	WorkTag
+	OffscreenComponent
 } from './workTags';
 import { Flags, NoFlags } from './fiberFlags';
 import { Container } from 'hostConfig';
@@ -15,18 +15,13 @@ import { Effect } from './fiberHooks';
 import { CallbackNode } from 'scheduler';
 import { REACT_PROVIDER_TYPE, REACT_SUSPENSE_TYPE } from 'shared/ReactSymbols';
 
-export interface OffscreenProps {
-	mode: 'visible' | 'hidden';
-	children: any;
-}
-
 export class FiberNode {
 	type: any;
 	tag: WorkTag;
 	pendingProps: Props;
 	key: Key;
 	stateNode: any;
-	ref: Ref;
+	ref: Ref | null;
 
 	return: FiberNode | null;
 	sibling: FiberNode | null;
@@ -82,6 +77,8 @@ export class FiberRootNode {
 	current: FiberNode;
 	finishedWork: FiberNode | null;
 	pendingLanes: Lanes;
+	suspendedLanes: Lanes;
+	pingedLanes: Lanes;
 	finishedLane: Lane;
 	pendingPassiveEffects: PendingPassiveEffects;
 
@@ -96,6 +93,8 @@ export class FiberRootNode {
 		hostRootFiber.stateNode = this;
 		this.finishedWork = null;
 		this.pendingLanes = NoLanes;
+		this.suspendedLanes = NoLanes;
+		this.pingedLanes = NoLanes;
 		this.finishedLane = NoLane;
 
 		this.callbackNode = null;
@@ -105,6 +104,7 @@ export class FiberRootNode {
 			unmount: [],
 			update: []
 		};
+
 		this.pingCache = null;
 	}
 }
@@ -114,7 +114,6 @@ export const createWorkInProgress = (
 	pendingProps: Props
 ): FiberNode => {
 	let wip = current.alternate;
-
 	if (wip === null) {
 		// mount
 		wip = new FiberNode(current.tag, pendingProps, current.key);
@@ -167,9 +166,13 @@ export function createFiberFromFragment(elements: any[], key: Key): FiberNode {
 	return fiber;
 }
 
-export function createFiberFromOffscreen(
-	pendingProps: OffscreenProps
-): FiberNode {
+export interface OffscreenProps {
+	mode: 'visible' | 'hidden';
+	children: any;
+}
+
+export function createFiberFromOffscreen(pendingProps: OffscreenProps) {
 	const fiber = new FiberNode(OffscreenComponent, pendingProps, null);
+	// TODO stateNode
 	return fiber;
 }

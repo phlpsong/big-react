@@ -6,7 +6,7 @@ import {
 } from 'shared/ReactTypes';
 
 export const SuspenseException = new Error(
-	'这不是真实的错误，是Suspense工作的一部分，如果你捕获到这个错误，请将它继续抛出。'
+	'这不是个真实的错误，而是Suspense工作的一部分。如果你捕获到这个错误，请将它继续抛出去'
 );
 
 let suspendedThenable: Thenable<any> | null = null;
@@ -20,12 +20,15 @@ export function getSuspenseThenable(): Thenable<any> {
 	return thenable;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-function
 function noop() {}
 
 export function trackUsedThenable<T>(thenable: Thenable<T>) {
 	switch (thenable.status) {
-		case 'fullfilled':
+		// 需要自己定义
+		case 'fulfilled':
 			return thenable.value;
+		// 需要自己定义
 		case 'rejected':
 			throw thenable.reason;
 		default:
@@ -33,7 +36,6 @@ export function trackUsedThenable<T>(thenable: Thenable<T>) {
 				thenable.then(noop, noop);
 			} else {
 				// untracked
-				// pending
 				const pending = thenable as unknown as PendingThenable<T, void, any>;
 				pending.status = 'pending';
 				pending.then(
@@ -41,21 +43,20 @@ export function trackUsedThenable<T>(thenable: Thenable<T>) {
 						if (pending.status === 'pending') {
 							// @ts-ignore
 							const fulfilled: FulfilledThenable<T, void, any> = pending;
-							fulfilled.status = 'fullfilled';
+							fulfilled.status = 'fulfilled';
 							fulfilled.value = val;
 						}
 					},
-					(error) => {
+					(err) => {
 						if (pending.status === 'pending') {
 							// @ts-ignore
 							const rejected: RejectedThenable<T, void, any> = pending;
+							rejected.reason = err;
 							rejected.status = 'rejected';
-							rejected.reason = error;
 						}
 					}
 				);
 			}
-			break;
 	}
 	suspendedThenable = thenable;
 	throw SuspenseException;

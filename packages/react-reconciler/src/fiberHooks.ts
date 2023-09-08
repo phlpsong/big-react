@@ -2,7 +2,7 @@ import { Dispatch } from 'react/src/currentDispatcher';
 import { Dispatcher } from 'react/src/currentDispatcher';
 import currentBatchConfig from 'react/src/currentBatchConfig';
 import internals from 'shared/internals';
-import { Action, ReactContext, Thenable } from 'shared/ReactTypes';
+import { Action, ReactContext, Thenable, Usable } from 'shared/ReactTypes';
 import { FiberNode } from './fiber';
 import { Flags, PassiveEffect } from './fiberFlags';
 import { Lane, NoLane, requestUpdateLane } from './fiberLanes';
@@ -16,8 +16,8 @@ import {
 	UpdateQueue
 } from './updateQueue';
 import { scheduleUpdateOnFiber } from './workLoop';
-import { REACT_CONTEXT_TYPE } from 'shared/ReactSymbols';
 import { trackUsedThenable } from './thenable';
+import { REACT_CONTEXT_TYPE } from 'shared/ReactSymbols';
 
 let currentlyRenderingFiber: FiberNode | null = null;
 let workInProgressHook: Hook | null = null;
@@ -247,9 +247,9 @@ function updateWorkInProgressHook(): Hook {
 
 	if (currentHook === null) {
 		// 这是这个FC update时的第一个hook
-		const current = currentlyRenderingFiber?.alternate;
+		const current = (currentlyRenderingFiber as FiberNode).alternate;
 		if (current !== null) {
-			nextCurrentHook = current?.memoizedState;
+			nextCurrentHook = current.memoizedState;
 		} else {
 			// mount
 			nextCurrentHook = null;
@@ -263,7 +263,7 @@ function updateWorkInProgressHook(): Hook {
 		// mount/update u1 u2 u3
 		// update       u1 u2 u3 u4
 		throw new Error(
-			`组件${currentlyRenderingFiber?.type}本次执行时的Hook比上次执行时多`
+			`组件 ${currentlyRenderingFiber?.type.name} 本次执行时的Hook比上次执行时多`
 		);
 	}
 
@@ -395,22 +395,20 @@ function readContext<T>(context: ReactContext<T>): T {
 	return value;
 }
 
-function use<T>(usable: Useable<T>): T {
+function use<T>(usable: Usable<T>): T {
 	if (usable !== null && typeof usable === 'object') {
 		if (typeof (usable as Thenable<T>).then === 'function') {
-			// thenable
 			const thenable = usable as Thenable<T>;
 			return trackUsedThenable(thenable);
 		} else if ((usable as ReactContext<T>).$$typeof === REACT_CONTEXT_TYPE) {
-			const context = usable as React<T>;
-			return readContext(usable);
+			const context = usable as ReactContext<T>;
+			return readContext(context);
 		}
 	}
-
-	throw new Error('不支持use参数: ' + usable);
+	throw new Error('不支持的use参数 ' + usable);
 }
 
-export function resetHooksOnUnwind() {
+export function resetHooksOnUnwind(wip: FiberNode) {
 	currentlyRenderingFiber = null;
 	currentHook = null;
 	workInProgressHook = null;

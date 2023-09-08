@@ -2,11 +2,10 @@ import { FiberNode } from './fiber';
 import { popProvider } from './fiberContext';
 import { DidCapture, NoFlags, ShouldCapture } from './fiberFlags';
 import { popSuspenseHandler } from './suspenseContext';
-import { ContextProvider, SuspenseComponent } from './workTags';
+import { ContextProvider, HostRoot, SuspenseComponent } from './workTags';
 
 export function unwindWork(wip: FiberNode) {
 	const flags = wip.flags;
-
 	switch (wip.tag) {
 		case SuspenseComponent:
 			popSuspenseHandler();
@@ -17,7 +16,8 @@ export function unwindWork(wip: FiberNode) {
 				wip.flags = (flags & ~ShouldCapture) | DidCapture;
 				return wip;
 			}
-			break;
+			return null;
+
 		case ContextProvider:
 			const context = wip.type._context;
 			popProvider(context);
@@ -25,5 +25,4 @@ export function unwindWork(wip: FiberNode) {
 		default:
 			return null;
 	}
-	return null;
 }
