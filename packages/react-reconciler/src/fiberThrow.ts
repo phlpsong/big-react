@@ -29,7 +29,6 @@ function attachPingListener(
 		// 第一次进入
 		threadIDs.add(lane);
 
-		// eslint-disable-next-line no-inner-declarations
 		function ping() {
 			if (pingCache !== null) {
 				pingCache.delete(wakeable);

@@ -61,9 +61,16 @@ const RootDidNotComplete = 3;
 let workInProgressRootExitStatus: number = RootInProgress;
 
 // Suspense
-type SuspendedReason = typeof NotSuspended | typeof SuspendedOnData;
+type SuspendedReason =
+	| typeof NotSuspended
+	| typeof SuspendedOnError
+	| typeof SuspendedOnData
+	| typeof SuspendedOnDeprecatedThrowPromise;
 const NotSuspended = 0;
-const SuspendedOnData = 6;
+const SuspendedOnError = 1;
+const SuspendedOnData = 2;
+const SuspendedOnDeprecatedThrowPromise = 4;
+
 let workInProgressSuspendedReason: SuspendedReason = NotSuspended;
 let workInProgressThrownValue: any = null;
 
@@ -243,6 +250,8 @@ function performSyncWorkOnRoot(root: FiberRootNode) {
 	}
 }
 
+let c = 0;
+
 function renderRoot(root: FiberRootNode, lane: Lane, shouldTimeSlice: boolean) {
 	if (__DEV__) {
 		console.log(`开始${shouldTimeSlice ? '并发' : '同步'}更新`, root);
@@ -272,6 +281,11 @@ function renderRoot(root: FiberRootNode, lane: Lane, shouldTimeSlice: boolean) {
 		} catch (e) {
 			if (__DEV__) {
 				console.warn('workLoop发生错误', e);
+			}
+			c++;
+			if (c > 20) {
+				break;
+				console.warn('break!');
 			}
 			handleThrow(root, e);
 		}
@@ -422,7 +436,15 @@ function handleThrow(root: FiberRootNode, thrownValue: any): void {
 		workInProgressSuspendedReason = SuspendedOnData;
 		thrownValue = getSuspenseThenable();
 	} else {
-		// TODO Error Boundary
+		const isWakeable =
+			thrownValue !== null &&
+			typeof thrownValue === 'object' &&
+			typeof thrownValue.then === 'function';
+
+		workInProgressThrownValue = thrownValue;
+		workInProgressSuspendedReason = isWakeable
+			? SuspendedOnDeprecatedThrowPromise
+			: SuspendedOnError;
 	}
 	workInProgressThrownValue = thrownValue;
 }

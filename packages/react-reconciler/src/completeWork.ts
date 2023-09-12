@@ -15,7 +15,8 @@ import {
 	Fragment,
 	ContextProvider,
 	OffscreenComponent,
-	SuspenseComponent
+	SuspenseComponent,
+	MemoComponent
 } from './workTags';
 import { popProvider } from './fiberContext';
 import { popSuspenseHandler } from './suspenseContext';
@@ -81,6 +82,7 @@ export const completeWork = (wip: FiberNode) => {
 		case FunctionComponent:
 		case Fragment:
 		case OffscreenComponent:
+		case MemoComponent:
 			bubbleProperties(wip);
 			return null;
 		case ContextProvider:
@@ -153,6 +155,7 @@ function bubbleProperties(wip: FiberNode) {
 		subtreeFlags |= child.subtreeFlags;
 		subtreeFlags |= child.flags;
 
+		// child.lanes child.childLanes
 		newChildLanes = mergeLanes(
 			newChildLanes,
 			mergeLanes(child.lanes, child.childLanes)
